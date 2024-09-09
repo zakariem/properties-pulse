@@ -1,15 +1,16 @@
-'use client'
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/images/logo-white.png";
 import defaultProfile from "@/assets/images/profile.png";
-import { FaGoogle } from 'react-icons/fa';
+import { FaGoogle } from "react-icons/fa";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false); // Add state for profile menu
-
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const pathName = usePathname();
   return (
     <nav className="bg-blue-700 border-b border-blue-500">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -48,26 +49,41 @@ function Navbar() {
               <Image
                 className="h-10 w-auto"
                 src={logo}
-                alt="PropertyPulse"
+                alt="PropertiesPulse"
                 width={40}
                 height={40}
               />
               <span className="hidden md:block text-white text-2xl font-bold ml-2">
-                PropertyPulse
+                PropertiesPulse
               </span>
             </Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:ml-6 md:block">
               <div className="flex space-x-2">
-                <Link href="/" className="text-white bg-black hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">
+                <Link
+                  href="/"
+                  className={`${
+                    pathName === "/" ? "bg-black" : ""
+                  } text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                >
                   Home
                 </Link>
-                <Link href="/property" className="text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">
+                <Link
+                  href="/properties"
+                  className={`${
+                    pathName === "/properties" ? "bg-black" : ""
+                  } text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                >
                   Properties
                 </Link>
-                <Link href="/property/add" className="text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">
-                  Add Property
+                <Link
+                  href="/properties/add"
+                  className={`${
+                    pathName === "/properties/add" ? "bg-black" : ""
+                  } text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2`}
+                >
+                  Add Properties
                 </Link>
               </div>
             </div>
@@ -133,16 +149,24 @@ function Navbar() {
               {/* Profile dropdown menu */}
               <div
                 id="user-menu"
-                className={`${profileMenuOpen ? 'block' : 'hidden'} absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}
+                className={`${
+                  profileMenuOpen ? "block" : "hidden"
+                } absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
                 tabIndex="-1"
               >
-                <Link href="/profile.html" className="block px-4 py-2 text-sm text-gray-700">
+                <Link
+                  href="/profile.html"
+                  className="block px-4 py-2 text-sm text-gray-700"
+                >
                   Your Profile
                 </Link>
-                <Link href="/saved-properties.html" className="block px-4 py-2 text-sm text-gray-700">
+                <Link
+                  href="/saved-properties.html"
+                  className="block px-4 py-2 text-sm text-gray-700"
+                >
                   Saved Properties
                 </Link>
                 <button className="block px-4 py-2 text-sm text-gray-700">
@@ -155,16 +179,34 @@ function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={menuOpen ? 'block' : 'hidden'} id="mobile-menu">
+      <div className={menuOpen ? "block" : "hidden"} id="mobile-menu">
         <div className="space-y-1 px-2 pb-3 pt-2">
-          <Link href="/" className="bg-black text-white block rounded-md px-3 py-2 text-base font-medium">
+          <Link
+            href="/"
+            className={`${
+              pathName === "/" ? "bg-black" : ""
+            } hover:bg-gray-900 hover:text-whit text-white block rounded-md px-3 py-2 text-base font-medium`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
             Home
           </Link>
-          <Link href="/property" className="text-white block rounded-md px-3 py-2 text-base font-medium">
+          <Link
+            href="/properties"
+            className={`${
+              pathName === "/properties" ? "bg-black" : ""
+            } hover:bg-gray-900 hover:text-whit text-white block rounded-md px-3 py-2 text-base font-medium`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
             Properties
           </Link>
-          <Link href="/property/add" className="text-white block rounded-md px-3 py-2 text-base font-medium">
-            Add Property
+          <Link
+            href="/properties/add"
+          className={`${
+              pathName === "/properties/add" ? "bg-black" : ""
+            } hover:bg-gray-900 hover:text-whit text-white block rounded-md px-3 py-2 text-base font-medium`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            Add Properties
           </Link>
           <button className="flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 my-5">
             <FaGoogle className="text-white mr-2" />
