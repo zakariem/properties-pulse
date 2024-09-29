@@ -1,10 +1,10 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, model, models } from 'mongoose';
 
-const propertySchema = new Schema(
+const PropertySchema = new Schema(
   {
     owner: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     name: {
@@ -49,7 +49,6 @@ const propertySchema = new Schema(
         type: String,
       },
     ],
-
     rates: {
       nightly: {
         type: Number,
@@ -77,7 +76,6 @@ const propertySchema = new Schema(
         type: String,
       },
     ],
-
     is_featured: {
       type: Boolean,
       default: false,
@@ -88,4 +86,6 @@ const propertySchema = new Schema(
   }
 );
 
-export const Property = models.property || model("Property", propertySchema);
+const Property = models.Property || model('Property', PropertySchema);
+
+export default Property;

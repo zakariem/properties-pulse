@@ -1,7 +1,22 @@
 import PropertyCard from "@/components/PropertyCard";
-import properties from "@/properties.json";
+import { Error } from "mongoose";
 
-function PropertyPage() {
+async function fetchProperties() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_DOMAIN}/properties`);
+    if (!res.ok) {
+      throw new Error("failed to fetch data");
+    }
+    return res.json();
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+}
+
+const PropertyPage = async () => {
+  const properties = await fetchProperties();
+
   return (
     <section className="px-4 py-6">
       <div className="container-xl lg:container m-auto px-4 py-6">
@@ -19,6 +34,6 @@ function PropertyPage() {
       </div>
     </section>
   );
-}
+};
 
 export default PropertyPage;
