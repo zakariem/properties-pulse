@@ -14,3 +14,19 @@ export async function fetchProperties() {
     return [];
   }
 }
+
+export async function fetchSingleProperty(id) {
+  try {
+    if (!apiDomain) {
+      return null;
+    }
+    const res = await fetch(`${apiDomain}/properties/${id}`);
+    if (!res.ok) {
+      throw new Error("failed to fetch data");
+    }
+    return res.json();
+  } catch (e) {
+    console.log(e);
+    return null
+  }
+}
