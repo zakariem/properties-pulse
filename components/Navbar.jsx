@@ -10,6 +10,7 @@ import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 
 function Navbar() {
   const { data: session } = useSession();
+  const profileImage = session?.user?.image || defaultProfile;
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [providers, setProviders] = useState(null);
@@ -165,10 +166,11 @@ function Navbar() {
                   <span className="sr-only">Open user menu</span>
                   <Image
                     className="h-8 w-8 rounded-full"
-                    src={defaultProfile}
+                    src={profileImage} 
                     alt="Profile"
                     width={32}
                     height={32}
+                    sizes="100vw"
                   />
                 </button>
                 {/* Profile dropdown menu */}
@@ -183,18 +185,23 @@ function Navbar() {
                   tabIndex="-1"
                 >
                   <Link
-                    href="/profile.html"
+                    href="/profile"
                     className="block px-4 py-2 text-sm text-gray-700"
+                    onClick={() => setProfileMenuOpen(false)}
                   >
                     Your Profile
                   </Link>
                   <Link
-                    href="/saved-properties.html"
+                    href="/saved-properties"
                     className="block px-4 py-2 text-sm text-gray-700"
+                    onClick={() => setProfileMenuOpen(false)}
                   >
                     Saved Properties
                   </Link>
-                  <button className="block px-4 py-2 text-sm text-gray-700">
+                  <button onClick={() => {
+                    setProfileMenuOpen(false);
+                    signOut();
+                  }} className="block px-4 py-2 text-sm text-gray-700">
                     Sign Out
                   </button>
                 </div>
