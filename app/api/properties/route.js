@@ -15,3 +15,17 @@ export const GET = async () => {
     });
   }
 };
+
+export const POST = async (request) => {
+  try {
+    const formData = await request.formData();
+    console.log(formData.get('name'));
+    return new Response(JSON.stringify({ message: "Successfully" }), {
+      status: 200,
+    })
+  }catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
+  }
+}
