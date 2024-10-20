@@ -1,6 +1,5 @@
-import {connectDB} from "@/config/db";
-import {User} from "@/model/User";
-
+import { connectDB } from "@/config/db";
+import { User } from "@/model/User";
 import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
@@ -19,30 +18,49 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ profile }) {
-      // connect to db
-      await connectDB();
-      // check if user already exists
-      const userExists = await User.findOne({ email: profile.email });
-      // if not, create user
-      if (!userExists) {
-        const username = profile.name.slice(0, 20);
-        await User.create({
-          email: profile.email,
-          username,
-          image: profile.picture,
-        });
+      try {
+        // Connect to the database (if not already connected)
+        await connectDB();
+
+        // Check if the user already exists
+        const userExists = await User.findOne({ email: profile.email });
+        if (!userExists) {
+          const username = profile.name.slice(0, 20); // Limit username length
+          await User.create({
+            email: profile.email,
+            username,
+            image: profile.picture,
+          });
+        }
+
+        // Return true to indicate successful sign-in
+        return true;
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+        return false; // Return false to prevent the sign-in if there was an error
       }
-      // reurn true to indicate successful sign in
-      return true;
     },
-    // modify the session
+
     async session({ session }) {
-      // get user from db
-      const user = await User.findOne({ email: session.user.email });
-      // set user id to the session
-      session.user.id = user._id.toString();
-      // return session
-      return session;
+      try {
+        // Connect to the database
+        await connectDB();
+
+        // Retrieve the user from the database
+        const user = await User.findOne({ email: session.user.email });
+        if (!user) {
+          throw new Error("User not found");
+        }
+
+        // Add user ID to the session object
+        session.user.id = user._id.toString();
+
+        // Return the session object
+        return session;
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        return session; // Return the session even in case of error (depends on your requirements)
+      }
     },
   },
 };
