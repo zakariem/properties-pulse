@@ -3,27 +3,11 @@ import Property from "@/model/Property";
 import getSessionUserID from "@/utils/getSessionUserID";
 
 // Get /api/properties
-export const GET = async () => {
-  try {
-    await connectDB();
-
-    const properties = await Property.find();
-
-    return new Response(JSON.stringify(properties), { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-    });
-  }
-};
-
 export const POST = async (request) => {
   try {
     await connectDB();
 
     const session = await getSessionUserID();
-
-    console.log(session.userId);
 
     if (!session || !session.userId) {
       return new Response(
@@ -32,17 +16,14 @@ export const POST = async (request) => {
       );
     }
 
-    const {userId} = session;
-
+    const { userId } = session;
     const formData = await request.formData();
 
-    // access all data from amenities and images
     const amenities = formData.getAll("amenities");
     const images = formData
       .getAll("images")
       .filter((image) => image.name !== "");
 
-    // create property object for the database
     const propertyData = {
       type: formData.get("type"),
       name: formData.get("name"),
@@ -60,7 +41,7 @@ export const POST = async (request) => {
       rates: {
         weekly: formData.get("rates.weekly"),
         monthly: formData.get("rates.monthly"),
-        nightly: formData.get("rates.nightly."),
+        nightly: formData.get("rates.nightly"),
       },
       seller_info: {
         name: formData.get("seller_info.name"),
@@ -68,13 +49,17 @@ export const POST = async (request) => {
         phone: formData.get("seller_info.phone"),
       },
       owner: userId,
-      images,
+      // images,
     };
 
-    console.log(propertyData);
+    const newProperty = await Property(propertyData);
+    await newProperty.save();
 
-    return new Response(JSON.stringify({ message: "Successfully" }), {
-      status: 200,
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: `${process.env.NEXT_PUBLIC_DOMAIN}/properties/${newProperty._id}`,
+      },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
@@ -82,3 +67,4 @@ export const POST = async (request) => {
     });
   }
 };
+
