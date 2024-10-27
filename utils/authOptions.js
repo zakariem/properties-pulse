@@ -19,13 +19,12 @@ export const authOptions = {
   callbacks: {
     async signIn({ profile }) {
       try {
-        // Connect to the database (if not already connected)
-        await connectDB();
+        await connectDB(); // Ensure database is connected
 
-        // Check if the user already exists
+        // Check if user already exists
         const userExists = await User.findOne({ email: profile.email });
         if (!userExists) {
-          const username = profile.name.slice(0, 20); // Limit username length
+          const username = profile.name.slice(0, 20); // Limit to 20 chars
           await User.create({
             email: profile.email,
             username,
@@ -33,33 +32,30 @@ export const authOptions = {
           });
         }
 
-        // Return true to indicate successful sign-in
-        return true;
+        return true; // Successful sign-in
       } catch (error) {
         console.error("Error during sign-in:", error);
-        return false; // Return false to prevent the sign-in if there was an error
+        return false; // Prevent sign-in on error
       }
     },
 
     async session({ session }) {
       try {
-        // Connect to the database
         await connectDB();
 
-        // Retrieve the user from the database
+        // Retrieve user from database
         const user = await User.findOne({ email: session.user.email });
         if (!user) {
-          throw new Error("User not found");
+          console.warn("User not found in session callback");
+          return null; // Handle user not found case (null or empty session)
         }
 
-        // Add user ID to the session object
+        // Attach user ID to session
         session.user.id = user._id.toString();
-
-        // Return the session object
         return session;
       } catch (error) {
         console.error("Error fetching session:", error);
-        return session; // Return the session even in case of error (depends on your requirements)
+        return null; // Return null if an error occurs
       }
     },
   },

@@ -1,32 +1,28 @@
-const apiDomain = process.env.NEXT_PUBLIC_API_DOMAIN || null;
-export async function fetchProperties() {
+const apiDomain = process.env.NEXT_PUBLIC_API_DOMAIN;
+
+if (!apiDomain) {
+  console.error("API domain environment variable is missing.");
+}
+
+async function handleFetch(url) {
   try {
-    if (!apiDomain) {
-      return [];
-    }
-    const res = await fetch(`${apiDomain}/properties`);
+    const res = await fetch(url);
     if (!res.ok) {
-      throw new Error("failed to fetch data");
+      throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
     }
     return res.json();
-  } catch (e) {
-    console.log(e);
-    return [];
+  } catch (error) {
+    console.error("Fetch error:", error.message);
+    return null; // Return `null` or `[]` based on context
   }
 }
 
+export async function fetchProperties() {
+  if (!apiDomain) return [];
+  return await handleFetch(`${apiDomain}/properties`) || [];
+}
+
 export async function fetchSingleProperty(id) {
-  try {
-    if (!apiDomain) {
-      return null;
-    }
-    const res = await fetch(`${apiDomain}/properties/${id}`);
-    if (!res.ok) {
-      throw new Error("failed to fetch data");
-    }
-    return res.json();
-  } catch (e) {
-    console.log(e);
-    return null
-  }
+  if (!apiDomain) return null;
+  return await handleFetch(`${apiDomain}/properties/${id}`);
 }
