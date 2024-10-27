@@ -1,7 +1,6 @@
 import { connectDB } from "@/config/db";
 import Property from "@/model/Property";
-import { getServerSession } from "next-auth/next";
-import {authOptions} from "@/utils/authOptions"
+import getSessionUserID from "@/utils/getSessionUserID";
 
 // Get /api/properties
 export const GET = async () => {
@@ -22,16 +21,18 @@ export const POST = async (request) => {
   try {
     await connectDB();
 
-    const session = await getServerSession(authOptions);
+    const session = await getSessionUserID();
 
-    if (!session) {
+    console.log(session.userId);
+
+    if (!session || !session.userId) {
       return new Response(
         JSON.stringify({ error: "You must be logged in to create a property" }),
         { status: 401 }
-    )
-  }
+      );
+    }
 
-    const userId = session.user.id;
+    const {userId} = session;
 
     const formData = await request.formData();
 
