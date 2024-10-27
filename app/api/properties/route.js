@@ -1,6 +1,7 @@
 import { connectDB } from "@/config/db";
 import Property from "@/model/Property";
 import getSessionUserID from "@/utils/getSessionUserID";
+import cloudinary from "@/config/cloudnary";
 
 // Get /api/properties
 export const POST = async (request) => {
@@ -49,8 +50,26 @@ export const POST = async (request) => {
         phone: formData.get("seller_info.phone"),
       },
       owner: userId,
-      // images,
+      images: [], // Initialize an array for storing image URLs
     };
+
+    // Upload images
+    const imageUploadPromises = images.map(async (image) => {
+      const imageBuffer = await image.arrayBuffer();
+      const imageArray = Array.from(new Uint8Array(imageBuffer));
+      const imageData = Buffer.from(imageArray).toString("base64");
+
+      // Upload to Cloudinary and retrieve the secure_url
+      const result = await cloudinary.uploader.upload(`data:image/png;base64,${imageData}`, {
+        folder: "propertypulse",
+      });
+
+      // Push only the secure_url to the images array
+      propertyData.images.push(result.secure_url);
+    });
+
+    // Wait for all image upload promises to complete
+    await Promise.all(imageUploadPromises);
 
     const newProperty = await Property(propertyData);
     await newProperty.save();
@@ -67,4 +86,3 @@ export const POST = async (request) => {
     });
   }
 };
-
