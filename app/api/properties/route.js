@@ -1,5 +1,7 @@
 import { connectDB } from "@/config/db";
 import Property from "@/model/Property";
+import { getServerSession } from "next-auth/next";
+import {authOptions} from "@/utils/authOptions"
 
 // Get /api/properties
 export const GET = async () => {
@@ -18,6 +20,19 @@ export const GET = async () => {
 
 export const POST = async (request) => {
   try {
+    await connectDB();
+
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return new Response(
+        JSON.stringify({ error: "You must be logged in to create a property" }),
+        { status: 401 }
+    )
+  }
+
+    const userId = session.user.id;
+
     const formData = await request.formData();
 
     // access all data from amenities and images
@@ -51,6 +66,7 @@ export const POST = async (request) => {
         email: formData.get("seller_info.email"),
         phone: formData.get("seller_info.phone"),
       },
+      owner: userId,
       images,
     };
 
