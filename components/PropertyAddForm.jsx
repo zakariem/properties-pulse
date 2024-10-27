@@ -532,6 +532,7 @@ function PropertyAddForm() {
           className="border rounded w-full py-2 px-3"
           multiple
           onChange={handleImageChange}
+          required
         />
       </div>
 
