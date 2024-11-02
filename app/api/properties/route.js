@@ -1,9 +1,24 @@
 import { connectDB } from "@/config/db";
 import Property from "@/model/Property";
 import getSessionUserID from "@/utils/getSessionUserID";
-import cloudinary from "@/config/cloudnary";
+import cloudinary from "@/config/cloudinary";
 
-// Get /api/properties
+// GET /api/properties
+export const GET = async (request) => {
+  try {
+    await connectDB();
+
+    const properties = await Property.find({});
+
+    return new Response(JSON.stringify(properties), { status: 200 });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
+  }
+};
+
+// POST /api/properties
 export const POST = async (request) => {
   try {
     await connectDB();
@@ -21,9 +36,7 @@ export const POST = async (request) => {
     const formData = await request.formData();
 
     const amenities = formData.getAll("amenities");
-    const images = formData
-      .getAll("images")
-      .filter((image) => image.name !== "");
+    const images = formData.getAll("images").filter((image) => image.name !== "");
 
     const propertyData = {
       type: formData.get("type"),
@@ -59,8 +72,12 @@ export const POST = async (request) => {
       const imageArray = Array.from(new Uint8Array(imageBuffer));
       const imageData = Buffer.from(imageArray).toString("base64");
 
+      // Dynamically detect MIME type
+      const mimeType = image.type || "image/png"; // Default to image/png if MIME type is unavailable
+      const dataUri = `data:${mimeType};base64,${imageData}`;
+
       // Upload to Cloudinary and retrieve the secure_url
-      const result = await cloudinary.uploader.upload(`data:image/png;base64,${imageData}`, {
+      const result = await cloudinary.uploader.upload(dataUri, {
         folder: "propertypulse",
       });
 
@@ -71,7 +88,7 @@ export const POST = async (request) => {
     // Wait for all image upload promises to complete
     await Promise.all(imageUploadPromises);
 
-    const newProperty = await Property(propertyData);
+    const newProperty = new Property(propertyData);
     await newProperty.save();
 
     return new Response(null, {
